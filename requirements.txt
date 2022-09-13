@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Restful
+Flask-WTF
+Flask-Migrate
+Flask-marshmallow
+Flask-restful
+Flask-Pydantic
+python-jose[cryptography]
+passlib[bcrypt]
+psycopg2
