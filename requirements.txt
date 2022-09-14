@@ -9,3 +9,6 @@ Flask-Pydantic
 python-jose[cryptography]
 passlib[bcrypt]
 psycopg2
+marshmallow-sqlalchemy
+pydantic[email]
+flask-jwt-extended

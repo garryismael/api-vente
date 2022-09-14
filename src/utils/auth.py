@@ -1,22 +1,25 @@
-from datetime import datetime, timedelta
-import secrets
+from functools import wraps
 
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+from flask import jsonify
+from flask_jwt_extended import get_jwt, get_jwt_identity, verify_jwt_in_request
+from src.models.user import User
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def get_authenticated_user():
+    email = get_jwt_identity()
+    return User.query.filter_by(email=email).first_or_404()
 
 
-def generate_token() -> str:
-    return secrets.token_urlsafe(32)
+def admin_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            verify_jwt_in_request()
+            claims = get_jwt()
+            if claims["is_administrator"]:
+                return fn(*args, **kwargs)
+            else:
+                return jsonify(msg="Admins only!"), 403
+        return decorator
 
-
-def get_expiration_date(days: int = 1) -> datetime:
-    return datetime.now() + timedelta(days=days)
+    return wrapper

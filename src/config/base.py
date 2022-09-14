@@ -7,6 +7,7 @@ class BaseConfig(object):
     TESTING = True
     SECRET_KEY = "my-secret-key"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = 'jwt-secret-key'
 
 
 class DevConfig(BaseConfig):
