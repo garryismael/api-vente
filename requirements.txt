@@ -1,10 +1,8 @@
 Flask
 Flask-SQLAlchemy
-Flask-Restful
 Flask-WTF
 Flask-Migrate
 Flask-marshmallow
-Flask-restful
 Flask-Pydantic
 python-jose[cryptography]
 passlib[bcrypt]
@@ -12,3 +10,5 @@ psycopg2
 marshmallow-sqlalchemy
 pydantic[email]
 flask-jwt-extended
+python-dotenv
+flask-cors
