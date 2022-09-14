@@ -41,9 +41,17 @@ class Purchase(db.Model):
         
     @staticmethod
     def bulk_create(user: User, body: list[PurchaseBase]):
-        purchases = [Purchase(client_id=user.id, **purchase.dict()) for purchase in body]
-        db.session.bulk_save_objects(purchases)
-        db.session.commit()
+        if len(body) > 0:
+            purchases = [Purchase(client_id=user.id, **purchase.dict()) for purchase in body]
+            db.session.bulk_save_objects(purchases)
+            db.session.commit()
     
+    @staticmethod
+    def bulk_update(user: User, body: list[PurchaseBase]):
+        if len(body) > 0:
+            purchases = [Purchase(client_id=user.id, **purchase.dict()) for purchase in body]
+            db.session.bulk_update_mappings(purchases)
+            db.session.commit()
+            
     def __repr__(self):
         return f'<Order {self.client}>'

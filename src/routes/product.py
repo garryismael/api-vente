@@ -35,10 +35,10 @@ def edit_product(id: int, body: ProductBase):
     return ProductDb.from_orm(product)
 
 
-@product_bp.put("/<int:id>")
+@product_bp.delete("/<int:id>")
 @validate()
 @admin_required()
 def delete_product(id: int):
     product = Product.query.filter_by(id=id).first_or_404()
     product.delete()
-    return jsonify(), 200
+    return jsonify(""), 200

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
-from src.config.database import db
+
 from flask_jwt_extended import get_jwt
+from src.config.database import db
 
 
 class TokenBlocklist(db.Model):
