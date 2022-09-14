@@ -36,7 +36,14 @@ def create_user(body: UserCreate):
 @admin_required()
 def edit_user(id: int, body: UserBase):
     user: User = User.query.filter_by(id=id).first_or_404()
-    user.update(body)
+    if user.email == body.email:
+        user.update(body)
+    else:
+        other_user = User.query.filter_by(email=body.email).first_or_404()
+        if other_user is None:
+            user.update(body)
+        else:
+            return jsonify(email='email must be unique'), 400
     return UserDb.from_orm(user)
 
 @user_bp.delete("/<int:id>")

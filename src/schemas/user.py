@@ -20,7 +20,6 @@ class UserCreate(UserBase):
         if user is not None:
             raise ValueError('email must be unique')
         return v
-    
 class UserDb(UserBase):
     id: int
     is_admin: bool

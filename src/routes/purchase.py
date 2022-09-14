@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 from flask_pydantic import validate
-from src.config.database import db
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.models.user import User
@@ -45,7 +44,7 @@ def create_purchase(body: PurchaseBaseList):
 @jwt_required()
 def edit_purchase(id: int, body: PurchaseBaseList):
     user: User = get_authenticated_user()
-    purchase = Purchase.query.filter_by(id=id, client_id=user.id).first_or_404()
+    purchase: Purchase = Purchase.query.filter_by(id=id, client_id=user.id).first_or_404()
     purchase.update(body)
     return purchase_serializer.jsonify(purchase)
 

@@ -10,4 +10,4 @@ class UserSerializer(ma.SQLAlchemyAutoSchema):
     
 
 user_serializer = UserSerializer()
-users_serializer = UserSerializer(many=True, only=('id', 'name', 'address', 'is_admin'))
+users_serializer = UserSerializer(many=True, only=('id', 'name', 'email', 'address', 'is_admin'))
