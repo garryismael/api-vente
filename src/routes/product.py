@@ -1,14 +1,14 @@
 
-from flask import Blueprint, jsonify, request, send_file
+from flask import Blueprint, jsonify, request, send_from_directory
 from flask_pydantic import validate
+from src.app import app
 from src.models.product import Product
 from src.schemas.product import ProductBase, ProductDb
 from src.serializers.product import product_serializer, products_serializer
 from src.utils.auth import admin_required
-from src.utils.deta import delete_file, download_file, upload_file
-from werkzeug.utils import secure_filename
-
+from src.utils.deta import upload_file
 from src.utils.form import valid_product_form
+from werkzeug.utils import secure_filename
 
 product_bp = Blueprint('product_bp', __name__, url_prefix="/products")
 
@@ -23,12 +23,9 @@ def get_one_product(id:int):
     product = Product.query.filter_by(id=id).first_or_404()
     return ProductDb.from_orm(product)
 
-@product_bp.get("image/<name>")
+@product_bp.get("images/<name>")
 def get_image(name: str):
-    file = download_file(name)
-    if file is None:
-        return jsonify(msg="Image Not Found"), 404
-    return send_file(file, mimetype="image/png")
+    return send_from_directory(app.config.get('UPLOAD_FOLDER'), name)
 
 @product_bp.post("/")
 @valid_product_form
@@ -51,15 +48,12 @@ def edit_product(id: int):
     data = dict(request.form)
     image = request.files.get('image')
     filename = product.image
-    delete_filename: str = None
     if image is not None:
-        delete_filename = filename
         filename = secure_filename(image.filename)
     body = ProductBase(**data, image=filename)
     product = product.update(body.dict())
     if image is not None:
         upload_file(image, filename)
-        delete_file(delete_filename)
     return product_serializer.jsonify(product)
     
 
@@ -68,6 +62,5 @@ def edit_product(id: int):
 @admin_required()
 def delete_product(id: int):
     product: Product = Product.query.filter_by(id=id).first_or_404()
-    delete_file(product.image)
     product.delete()
     return jsonify(""), 200

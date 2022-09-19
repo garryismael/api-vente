@@ -1,18 +1,18 @@
-from os import environ
+import os
 
 from werkzeug.datastructures import FileStorage
 
 from deta import Deta
+from src.app import app
 
-DETA_PROJECT_KEY = environ.get('DETA_PROJECT_KEY')
+DETA_PROJECT_KEY = os.environ.get('DETA_PROJECT_KEY')
 deta = Deta(DETA_PROJECT_KEY)
 
 product_drive = deta.Drive("products")
 
 
 def upload_file(file: FileStorage, filename: str):
-    product_drive.put(filename, file.stream.read())
-    file.close()
+    file.save(os.path.join(app.config.get('UPLOAD_FOLDER'), filename))
     return filename
 
 def delete_file(filename: str):

@@ -9,14 +9,13 @@ class Product(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     price = Column(Float, nullable=False)
-    stock = Column(Integer, nullable=False)
     image = Column(String(255), nullable=False)
 
-    def __init__(self, name, price, stock, image):
-        self.init(name,price, stock, image)
+    def __init__(self, name, price, image):
+        self.init(name,price, image)
 
     def create(self):
-        print(self.name, self.price, self.stock, self.image)
+        print(self.name, self.price, self.image)
         db.session.add(self)
         db.session.commit()
         return self
@@ -30,10 +29,9 @@ class Product(db.Model):
         db.session.delete(self)
         db.session.commit()
     
-    def init(self, name, price, stock, image):
+    def init(self, name, price, image):
         self.name = name
         self.price = price
-        self.stock = stock
         self.image = image
 
     

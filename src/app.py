@@ -1,4 +1,5 @@
 
+import os
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -18,7 +19,6 @@ migrate.init_app(app, db)
 ma = Marshmallow(app)
 jwt = JWTManager(app)
 CORS(app)
-
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
