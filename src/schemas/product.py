@@ -5,6 +5,7 @@ from src.utils.product import allowed_file
 class ProductBase(BaseModel):
     name: str = Field(..., min_length=3, max_length=50)
     price: int = Field(..., gt=1)
+    description: str
     image: str
     class Config:
         orm_mode = True
