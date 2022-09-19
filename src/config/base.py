@@ -10,7 +10,6 @@ PG_USER_PASSWORD = environ.get('POSTGRES_USER_PASSWORD')
 PG_HOST = environ.get('POSTGRES_HOST')
 PG_DATABASE_NAME = environ.get('POSTGRES_DATABASE_NAME')
 
-
 class BaseConfig(object):
     DEBUG = True
     TESTING = True

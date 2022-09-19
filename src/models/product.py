@@ -1,3 +1,4 @@
+from typing import Any
 from sqlalchemy import Column, Float, Integer, String
 from src.config.database import db
 from src.schemas.product import ProductBase
@@ -9,18 +10,19 @@ class Product(db.Model):
     name = Column(String(50), nullable=False)
     price = Column(Float, nullable=False)
     stock = Column(Integer, nullable=False)
+    image = Column(String(255), nullable=False)
 
-
-    def __init__(self, name, price, stock):
-        self.init(name,price, stock)
+    def __init__(self, name, price, stock, image):
+        self.init(name,price, stock, image)
 
     def create(self):
+        print(self.name, self.price, self.stock, self.image)
         db.session.add(self)
         db.session.commit()
         return self
 
-    def update(self, data: ProductBase):
-        self.init(**data.dict())
+    def update(self, data: dict[str, Any]):
+        self.init(**data)
         db.session.commit()
         return self
     
@@ -28,10 +30,11 @@ class Product(db.Model):
         db.session.delete(self)
         db.session.commit()
     
-    def init(self, name, price, stock):
+    def init(self, name, price, stock, image):
         self.name = name
         self.price = price
-        self.stock = stock 
+        self.stock = stock
+        self.image = image
 
     
     def __repr__(self):

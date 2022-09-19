@@ -12,3 +12,4 @@ pydantic[email]
 flask-jwt-extended
 python-dotenv
 flask-cors
+deta
