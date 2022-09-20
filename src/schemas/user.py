@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash
 
 class UserBase(BaseModel):
     name: str = Field(..., min_length=3, max_length=50)
+    profile: str = Field(..., min_length=3, max_length=255)
     address: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
 

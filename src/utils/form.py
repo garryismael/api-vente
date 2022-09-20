@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from flask import jsonify
 from werkzeug.exceptions import NotFound
 
-def valid_product_form(fn):
+def valid_form(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
@@ -11,7 +11,7 @@ def valid_product_form(fn):
         except ValidationError as e:
             return jsonify(errors=e.errors()), 412
         except NotFound as e:
-            return jsonify(msg='Product Not Found'), 404
+            return jsonify(msg='Model Not Found'), 404
         except Exception as e:
             return jsonify(msg="Not a valid form"), 400
     return wrapper

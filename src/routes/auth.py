@@ -36,4 +36,4 @@ def register(body: UserCreate):
 @jwt_required()
 def me():
     user: User = get_authenticated_user()
-    return UserSerializer(only=('id', 'name', 'email', 'address', 'is_admin')).jsonify(user)
+    return UserSerializer(only=('id', 'name', 'email', 'address', 'is_admin', 'profile')).jsonify(user)

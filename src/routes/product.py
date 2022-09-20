@@ -7,10 +7,11 @@ from src.schemas.product import ProductBase, ProductDb
 from src.serializers.product import product_serializer, products_serializer
 from src.utils.auth import admin_required
 from src.utils.deta import upload_file
-from src.utils.form import valid_product_form
+from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 
 product_bp = Blueprint('product_bp', __name__, url_prefix="/products")
+product_folder = app.config.get('UPLOAD_PRODUCTS_FOLDER')
 
 @product_bp.get("/")
 def all_products():
@@ -25,10 +26,10 @@ def get_one_product(id:int):
 
 @product_bp.get("images/<name>")
 def get_image(name: str):
-    return send_from_directory(app.config.get('UPLOAD_FOLDER'), name)
+    return send_from_directory(product_folder, name)
 
 @product_bp.post("/")
-@valid_product_form
+@valid_form
 @admin_required()
 def create_product():
     data = dict(request.form)
@@ -37,11 +38,11 @@ def create_product():
     body = ProductBase(**data, image=filename)
     product: Product = product_serializer.load(data=body.dict())
     product = product.create()
-    upload_file(image, filename)
+    upload_file(image, product_folder, filename)
     return product_serializer.jsonify(product)
 
 @product_bp.put("/<int:id>")
-@valid_product_form
+@valid_form
 @admin_required()
 def edit_product(id: int):
     product: Product = Product.query.filter_by(id=id).first_or_404()
@@ -53,7 +54,7 @@ def edit_product(id: int):
     body = ProductBase(**data, image=filename)
     product = product.update(body.dict())
     if image is not None:
-        upload_file(image, filename)
+        upload_file(image, product_folder, filename)
     return product_serializer.jsonify(product)
     
 
