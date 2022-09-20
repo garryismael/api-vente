@@ -1,34 +1,33 @@
 
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import jsonify, request, send_from_directory
 from flask_pydantic import validate
 from src.app import app
 from src.models.product import Product
 from src.schemas.product import ProductBase, ProductDb
 from src.serializers.product import product_serializer, products_serializer
 from src.utils.auth import admin_required
-from src.utils.media import upload_file
 from src.utils.form import valid_form
+from src.utils.media import upload_file
 from werkzeug.utils import secure_filename
 
-product_bp = Blueprint('product_bp', __name__, url_prefix="/products")
 product_folder = app.config.get('UPLOAD_PRODUCTS_FOLDER')
 
-@product_bp.get("/")
+@app.get('/products')
 def all_products():
     products = Product.query.all()
     return products_serializer.jsonify(products)
 
-@product_bp.get("/<int:id>")
+@app.get("/products/<int:id>")
 @validate()
 def get_one_product(id:int):
     product = Product.query.filter_by(id=id).first_or_404()
     return ProductDb.from_orm(product)
 
-@product_bp.get("images/<name>")
-def get_image(name: str):
+@app.get("/products/images/<name>")
+def get_product_image(name: str):
     return send_from_directory(product_folder, name)
 
-@product_bp.post("/")
+@app.post("/products/")
 @valid_form
 @admin_required()
 def create_product():
@@ -41,7 +40,7 @@ def create_product():
     upload_file(image, product_folder, filename)
     return product_serializer.jsonify(product)
 
-@product_bp.put("/<int:id>")
+@app.put("/products/<int:id>")
 @valid_form
 @admin_required()
 def edit_product(id: int):
@@ -58,7 +57,7 @@ def edit_product(id: int):
     return product_serializer.jsonify(product)
     
 
-@product_bp.delete("/<int:id>")
+@app.delete("/products/<int:id>")
 @validate()
 @admin_required()
 def delete_product(id: int):

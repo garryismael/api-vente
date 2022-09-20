@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import jsonify
 from flask_jwt_extended import jwt_required
 from flask_pydantic import validate
+from src.app import app
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.models.user import User
@@ -9,16 +10,15 @@ from src.serializers.purchase import purchase_serializer, purchases_serializer
 from src.utils.auth import get_authenticated_user
 from src.utils.purchase import get_products_ids_not_found_in_db
 
-purchase_bp = Blueprint('purchase_bp', __name__, url_prefix="/purchases")
 
-@purchase_bp.get("/")
+@app.get("/purchases")
 @jwt_required()
 def all_purchases():
     user = get_authenticated_user()
     purchases = Purchase.query.filter_by(client_id=user.id)
     return purchases_serializer.jsonify(purchases)
 
-@purchase_bp.get("/<id>")
+@app.get("/purchases/<id>")
 @validate()
 @jwt_required()
 def get_one_purchase(id:int):
@@ -26,7 +26,7 @@ def get_one_purchase(id:int):
     purchase = Purchase.query.filter_by(id=id, client_id=user.id).first_or_404()
     return purchase_serializer.jsonify(purchase)
 
-@purchase_bp.post("/")
+@app.post("/purchases")
 @validate()
 @jwt_required()
 def create_purchase(body: PurchaseBaseList):
@@ -39,7 +39,7 @@ def create_purchase(body: PurchaseBaseList):
     Purchase.bulk_create(user, body.items)
     return jsonify(""), 201
 
-@purchase_bp.put("/<int:id>")
+@app.put("/purchases/<int:id>")
 @validate()
 @jwt_required()
 def edit_purchase(id: int, body: PurchaseBaseList):
@@ -48,7 +48,7 @@ def edit_purchase(id: int, body: PurchaseBaseList):
     purchase.update(body)
     return purchase_serializer.jsonify(purchase)
 
-@purchase_bp.delete("/<int:id>")
+@app.delete("/purchases/<int:id>")
 @validate()
 @jwt_required()
 def delete_purchase(id: int):

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import jsonify, request, send_from_directory
 from flask_pydantic import validate
 from pydantic import Field
 from src.app import app
@@ -10,24 +10,23 @@ from src.utils.media import upload_file
 from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 
-user_bp = Blueprint('user_bp', __name__, url_prefix="/users")
 user_folder = app.config.get('UPLOAD_USER_FOLDER')
 
-@user_bp.get("/")
+@app.get("/users")
 @admin_required()
 def all_users():
     is_admin = request.args.get('is_admin', False)
     users: list[User] = User.query.filter_by(is_admin=is_admin)
     return users_serializer.jsonify(users)
 
-@user_bp.get("/<id>")
+@app.get("/users/<id>")
 @validate()
 @admin_required()
 def get_one_user(id:int = Field(..., gt=1)):
     user: User = User.query.filter_by(id=id).first_or_404()
     return UserDb.from_orm(user)
 
-@user_bp.post("/")
+@app.post("/users")
 @valid_form
 @validate()
 @admin_required()
@@ -42,7 +41,7 @@ def create_user():
     upload_file(profile, user_folder, filename)
     return UserDb.from_orm(user)
 
-@user_bp.put("/<int:id>")
+@app.put("/users/<int:id>")
 @validate()
 @valid_form
 @admin_required()
@@ -68,7 +67,7 @@ def edit_user(id: int):
         
     return UserDb.from_orm(user)
 
-@user_bp.delete("/<int:id>")
+@app.delete("/users/<int:id>")
 @validate()
 @admin_required()
 def delete_user(id: int):
@@ -77,6 +76,6 @@ def delete_user(id: int):
     return jsonify(msg="deleted successfully"), 200
 
 
-@user_bp.get("/images/<name>")
-def get_image(name: str):
+@app.get("/users/images/<name>")
+def get_user_image(name: str):
     return send_from_directory(user_folder, name)

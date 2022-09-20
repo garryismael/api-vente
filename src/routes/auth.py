@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required
 from flask_pydantic import validate
 from src.app import app
@@ -11,26 +11,25 @@ from src.utils.media import upload_file
 from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 
-auth_bp = Blueprint('auth_bp', __name__, url_prefix="/auth")
 user_folder = app.config.get('UPLOAD_USER_FOLDER')
 
-@auth_bp.post("/login")
+@app.post("/auth/login")
 @validate()
 def login(body: UserLogin):
     user: User = User.query.filter_by(email=body.email).first_or_404()
     kwargs = {'identity':body.email}
     kwargs['additional_claims'] = {"is_administrator": True} if user.is_admin else {"is_administrator": False}
-    return jsonify(access_token=create_access_token(**kwargs)), 201
+    return jsonify(access_token=create_access_token(**kwargs)), 200
 
 
-@auth_bp.post("/logout")
+@app.post("/auth/logout")
 @jwt_required()
 def logout():
     TokenBlocklist.revoke()
     return jsonify(msg="JWT revoked"), 200
     
 
-@auth_bp.post("/register")
+@app.post("/auth/register")
 @valid_form
 @validate()
 def register():
@@ -43,7 +42,7 @@ def register():
     upload_file(profile, user_folder, filename)
     return UserDb.from_orm(user)
 
-@auth_bp.put("/")
+@app.put("/auth")
 @validate()
 @valid_form
 @jwt_required()
@@ -70,7 +69,7 @@ def edit_me():
     return UserDb.from_orm(user)
 
 
-@auth_bp.get('/me')
+@app.get('/auth/me')
 @jwt_required()
 def me():
     user: User = get_authenticated_user()
