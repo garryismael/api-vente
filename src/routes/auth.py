@@ -1,13 +1,18 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required
 from flask_pydantic import validate
+from src.app import app
 from src.models.token import TokenBlocklist
 from src.models.user import User
-from src.schemas.user import UserCreate, UserDb, UserLogin
+from src.schemas.user import UserBase, UserCreate, UserDb, UserLogin
 from src.serializers.user import UserSerializer, user_serializer
 from src.utils.auth import get_authenticated_user
+from src.utils.deta import upload_file
+from src.utils.form import valid_form
+from werkzeug.utils import secure_filename
 
 auth_bp = Blueprint('auth_bp', __name__, url_prefix="/auth")
+user_folder = app.config.get('UPLOAD_USER_FOLDER')
 
 @auth_bp.post("/login")
 @validate()
@@ -26,11 +31,44 @@ def logout():
     
 
 @auth_bp.post("/register")
+@valid_form
 @validate()
-def register(body: UserCreate):
+def register():
+    data = dict(request.form)
+    profile = request.files.get('profile')
+    filename = secure_filename(profile.filename)
+    body = UserCreate(**data, profile=filename)
     user: User = user_serializer.load(data=body.dict())
     user = user.create()
+    upload_file(profile, user_folder, filename)
     return UserDb.from_orm(user)
+
+@auth_bp.put()
+@validate()
+@valid_form
+@jwt_required()
+def edit_me():
+    user: User = get_authenticated_user()
+    data = dict(request.form)
+    profile = request.files.get('profile')
+    filename = user.profile
+    if profile is not None:
+        filename = secure_filename(profile.filename)
+    body = UserBase(**data, profile=filename)
+    
+    if user.email == body.email:
+        user.update(body)
+    else:
+        other_user = User.query.filter_by(email=body.email).first_or_404()
+        if other_user is None:
+            user.update(body)
+        else:
+            return jsonify(email='email must be unique'), 400
+    if profile is not None:
+        upload_file(profile, user_folder, filename)
+        
+    return UserDb.from_orm(user)
+
 
 @auth_bp.get('/me')
 @jwt_required()

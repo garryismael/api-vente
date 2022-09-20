@@ -46,7 +46,7 @@ def create_user():
 @validate()
 @valid_form
 @admin_required()
-def edit_user(id: int, body: UserBase):
+def edit_user(id: int):
     user: User = User.query.filter_by(id=id).first_or_404()
     data = dict(request.form)
     profile = request.files.get('profile')

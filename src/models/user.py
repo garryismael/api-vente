@@ -15,7 +15,7 @@ class User(db.Model):
     
     
     def __init__(self, *, name, profile, address, email, password):
-        self.init(name, profile,address, email)
+        self.init(name, profile, address, email)
         self.password = generate_password_hash(password)
         
 
@@ -25,7 +25,7 @@ class User(db.Model):
         return self
 
     def update(self, data):
-        self.init(data.name, data.address, data.email)
+        self.init(data.name, data.profile, data.address, data.email)
         db.session.commit()
         return self
     
