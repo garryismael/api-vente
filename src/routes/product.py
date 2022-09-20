@@ -6,7 +6,7 @@ from src.models.product import Product
 from src.schemas.product import ProductBase, ProductDb
 from src.serializers.product import product_serializer, products_serializer
 from src.utils.auth import admin_required
-from src.utils.deta import upload_file
+from src.utils.media import upload_file
 from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 

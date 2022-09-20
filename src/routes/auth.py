@@ -7,7 +7,7 @@ from src.models.user import User
 from src.schemas.user import UserBase, UserCreate, UserDb, UserLogin
 from src.serializers.user import UserSerializer, user_serializer
 from src.utils.auth import get_authenticated_user
-from src.utils.deta import upload_file
+from src.utils.media import upload_file
 from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 
@@ -43,7 +43,7 @@ def register():
     upload_file(profile, user_folder, filename)
     return UserDb.from_orm(user)
 
-@auth_bp.put()
+@auth_bp.put("/")
 @validate()
 @valid_form
 @jwt_required()

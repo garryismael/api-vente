@@ -9,13 +9,14 @@ class User(db.Model):
     name = Column(String(length=50), nullable=False)
     profile = Column(String(length=255), nullable=False)
     address = Column(String(length=50),nullable=False)
+    contact = Column(String(length=50), nullable=False)
     email = Column(String(length=255), unique=True, nullable=False)
     is_admin = Column(Boolean, default=False, nullable=False)
     password = Column(String(length=255), nullable=False)
     
     
-    def __init__(self, *, name, profile, address, email, password):
-        self.init(name, profile, address, email)
+    def __init__(self, *, name, profile, address, contact, email, password):
+        self.init(name, profile, address, contact, email)
         self.password = generate_password_hash(password)
         
 
@@ -25,7 +26,7 @@ class User(db.Model):
         return self
 
     def update(self, data):
-        self.init(data.name, data.profile, data.address, data.email)
+        self.init(data.name, data.profile, data.address, data.contact, data.email)
         db.session.commit()
         return self
     
@@ -33,10 +34,11 @@ class User(db.Model):
         db.session.delete(self)
         db.session.commit()
         
-    def init(self, name, profile, address, email):
+    def init(self, name, profile, address, contact, email):
         self.name = name
         self.profile = profile
         self.address = address
+        self.contact = contact
         self.email = email
         
     def __repr__(self):

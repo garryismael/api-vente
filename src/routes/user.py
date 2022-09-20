@@ -6,7 +6,7 @@ from src.models.user import User
 from src.schemas.user import UserBase, UserCreate, UserDb
 from src.serializers.user import user_serializer, users_serializer
 from src.utils.auth import admin_required
-from src.utils.deta import upload_file
+from src.utils.media import upload_file
 from src.utils.form import valid_form
 from werkzeug.utils import secure_filename
 
