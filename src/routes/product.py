@@ -14,7 +14,8 @@ product_folder = app.config.get('UPLOAD_PRODUCTS_FOLDER')
 
 @app.get('/products')
 def all_products():
-    products = Product.query.all()
+    search = request.args.get('search', None)
+    products = Product.query.order_by(Product.name).all() if (search is None or search == '') else Product.query.order_by(Product.name).filter(Product.name.ilike(f'{search}%'))
     return products_serializer.jsonify(products)
 
 @app.get("/products/<int:id>")
