@@ -47,13 +47,17 @@ def create_product():
 def edit_product(id: int):
     product: Product = Product.query.filter_by(id=id).first_or_404()
     data = dict(request.form)
+    
+    if 'image' in data:
+        del data['image']
+        
     image = request.files.get('image')
     filename = product.image
-    if image is not None:
+    if image is not None and image.filename != '':
         filename = secure_filename(image.filename)
     body = ProductBase(**data, image=filename)
     product = product.update(body.dict())
-    if image is not None:
+    if image is not None and image.filename != '':
         upload_file(image, product_folder, filename)
     return product_serializer.jsonify(product)
     
