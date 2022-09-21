@@ -4,11 +4,13 @@ from flask_pydantic import validate
 from src.app import app
 from src.models.token import TokenBlocklist
 from src.models.user import User
-from src.schemas.user import UserBase, UserCreate, UserDb, UserLogin
+from src.schemas.user import (UserBase, UserCreate, UserDb, UserLogin,
+                              UserPassword)
 from src.serializers.user import UserSerializer, user_serializer
 from src.utils.auth import get_authenticated_user
-from src.utils.media import upload_file
 from src.utils.form import valid_form
+from src.utils.media import upload_file
+from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
 user_folder = app.config.get('UPLOAD_USER_FOLDER')
@@ -42,16 +44,18 @@ def register():
     upload_file(profile, user_folder, filename)
     return UserDb.from_orm(user)
 
-@app.put("/auth")
+@app.put("/auth/me/edit")
 @validate()
 @valid_form
 @jwt_required()
 def edit_me():
     user: User = get_authenticated_user()
     data = dict(request.form)
+    if 'profile' in data:
+        del data['profile']
     profile = request.files.get('profile')
     filename = user.profile
-    if profile is not None:
+    if profile is not None and profile.filename != '':
         filename = secure_filename(profile.filename)
     body = UserBase(**data, profile=filename)
     
@@ -63,14 +67,23 @@ def edit_me():
             user.update(body)
         else:
             return jsonify(email='email must be unique'), 400
-    if profile is not None:
+    if profile is not None and profile.filename != '':
         upload_file(profile, user_folder, filename)
         
     return UserDb.from_orm(user)
+
+@app.put("/auth/password/edit")
+@validate()
+@jwt_required()
+def change_my_password(body: UserPassword):
+    user: User = get_authenticated_user()
+    user.password = generate_password_hash(body.newPassword)
+    user.password_changed()
+    return jsonify(msg='Password changed'), 200
 
 
 @app.get('/auth/me')
 @jwt_required()
 def me():
     user: User = get_authenticated_user()
-    return UserSerializer(only=('id', 'name', 'email', 'address', 'is_admin', 'profile')).jsonify(user)
+    return UserSerializer(only=('id', 'name', 'email', 'contact', 'address', 'is_admin', 'profile')).jsonify(user)

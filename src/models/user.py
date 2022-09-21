@@ -19,7 +19,9 @@ class User(db.Model):
         self.init(name, profile, address, contact, email)
         self.password = generate_password_hash(password)
         
-
+    def password_changed(self):
+        db.session.commit()
+        
     def create(self):
         db.session.add(self)
         db.session.commit()

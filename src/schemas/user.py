@@ -1,7 +1,8 @@
+from flask_jwt_extended import jwt_required, verify_jwt_in_request
 from pydantic import BaseModel, EmailStr, Field, validator
 from src.models.user import User
+from src.utils.auth import get_authenticated_user
 from werkzeug.security import check_password_hash
-
 
 class UserBase(BaseModel):
     name: str = Field(..., min_length=3, max_length=50)
@@ -44,9 +45,22 @@ class UserLogin(BaseModel):
             raise ValueError('invalid email or password')
         return v
     
+    @validator("password")
     def password_match(cls, v, values, **kwargs):
         email = values['email']
         user = User.query.filter_by(email=email).first_or_404()
-        if check_password_hash(user.password, v):
+        if not check_password_hash(user.password, v):
             raise ValueError('invalid email or password')
+        return v
+
+class UserPassword(BaseModel):
+    prevPassword: str = Field(..., min_length=3)
+    newPassword: str = Field(..., min_length=3)
+    
+    @validator("prevPassword")
+    def password_match(cls, v):
+        verify_jwt_in_request()
+        user: User = get_authenticated_user()
+        if not check_password_hash(user.password, v):
+            raise ValueError('Password don\'t match')
         return v
