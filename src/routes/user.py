@@ -48,9 +48,13 @@ def create_user():
 def edit_user(id: int):
     user: User = User.query.filter_by(id=id).first_or_404()
     data = dict(request.form)
+    
+    if 'profile' in data:
+        del data['profile']
+    
     profile = request.files.get('profile')
     filename = user.profile
-    if profile is not None:
+    if profile is not None and profile.filename != '':
         filename = secure_filename(profile.filename)
     body = UserBase(**data, profile=filename)
     
@@ -62,7 +66,7 @@ def edit_user(id: int):
             user.update(body)
         else:
             return jsonify(email='email must be unique'), 400
-    if profile is not None:
+    if profile is not None and profile.filename != '':
         upload_file(profile, user_folder, filename)
         
     return UserDb.from_orm(user)

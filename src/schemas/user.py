@@ -47,7 +47,9 @@ class UserLogin(BaseModel):
     
     @validator("password")
     def password_match(cls, v, values, **kwargs):
-        email = values['email']
+        email = values.get('email', None)
+        if email is None:
+            raise ValueError('invalid email or password')
         user = User.query.filter_by(email=email).first_or_404()
         if not check_password_hash(user.password, v):
             raise ValueError('invalid email or password')
