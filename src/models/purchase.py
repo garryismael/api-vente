@@ -6,6 +6,7 @@ from src.models.user import User
 from src.schemas.purchase import PurchaseBase
 
 
+
 class Purchase(db.Model):
     __tablename__ = 'purchases'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -14,8 +15,8 @@ class Purchase(db.Model):
     client_id = Column(Integer, ForeignKey('users.id'))
     product_id = Column(Integer, ForeignKey('products.id'))
     
-    client = db.relationship('User', backref=db.backref('purchases', lazy=True))
-    product = db.relationship('Product', backref=db.backref('products', lazy=True))
+    client = db.relationship('User', backref=db.backref('users', lazy='dynamic'))
+    product = db.relationship('Product', backref=db.backref('products', lazy='dynamic'))
     
     def __init__(self, *,client_id: int, product_id: int, quantity: int) -> None:
         self.init(product_id, quantity)

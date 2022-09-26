@@ -28,4 +28,5 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
 import src.routes.product
 import src.routes.auth
 import src.routes.purchase
+import src.routes.purchase_admin
 import src.routes.user

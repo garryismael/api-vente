@@ -15,8 +15,7 @@ user_folder = app.config.get('UPLOAD_USER_FOLDER')
 @app.get("/users")
 @admin_required()
 def all_users():
-    is_admin = request.args.get('is_admin', False)
-    users: list[User] = User.query.filter_by(is_admin=is_admin)
+    users: list[User] = User.query.all()
     return users_serializer.jsonify(users)
 
 @app.get("/users/<id>")
