@@ -8,6 +8,7 @@ from src.utils.auth import admin_required
 
 
 @app.get("/admin/purchases")
+@admin_required()
 def all_purchases_admin():
     purchases = Purchase.query.options(joinedload(Purchase.product)).all()
     return purchase_schemas.jsonify(purchases)
