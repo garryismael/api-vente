@@ -62,7 +62,7 @@ def edit_me():
     if user.email == body.email:
         user.update(body)
     else:
-        other_user = User.query.filter_by(email=body.email).first_or_404()
+        other_user = User.query.filter_by(email=body.email).first()
         if other_user is None:
             user.update(body)
         else:
