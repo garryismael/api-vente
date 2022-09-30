@@ -28,7 +28,7 @@ def get_one_product(id:int):
 def get_product_image(name: str):
     return send_from_directory(product_folder, name)
 
-@app.post("/products/")
+@app.post("/products")
 @valid_form
 @admin_required()
 def create_product():
