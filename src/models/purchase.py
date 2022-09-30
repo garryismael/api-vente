@@ -10,13 +10,13 @@ from src.schemas.purchase import PurchaseBase
 class Purchase(db.Model):
     __tablename__ = 'purchases'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    quantity = Column(Integer)
+    quantity = Column(Integer, nullable=False)
     date_purchase = Column(Date, nullable=False, default=date.today())
-    client_id = Column(Integer, ForeignKey('users.id'))
-    product_id = Column(Integer, ForeignKey('products.id'))
+    client_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
+    product_id = Column(Integer, ForeignKey('products.id', ondelete="CASCADE"))
     
-    client = db.relationship('User', backref=db.backref('users', lazy='dynamic'))
-    product = db.relationship('Product', backref=db.backref('products', lazy='dynamic'))
+    client = db.relationship('User', backref=db.backref('users', lazy='dynamic'), cascade="delete" )
+    product = db.relationship('Product', backref=db.backref('products', lazy='dynamic'), cascade="delete")
     
     def __init__(self, *,client_id: int, product_id: int, quantity: int) -> None:
         self.init(product_id, quantity)
