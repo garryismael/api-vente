@@ -13,5 +13,6 @@ def valid_form(fn):
         except NotFound as e:
             return jsonify(msg='Model Not Found'), 404
         except Exception as e:
+            print(e)
             return jsonify(msg="Not a valid form"), 400
     return wrapper
