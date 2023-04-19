@@ -8,3 +8,10 @@
 4. Executez dans une ligne de commande: ```pip install -r requirements``` pour installer les independances
 5. Executer ```flask run``` pour lancer le serveur
 6. Rendez-vous sur ce [lien](https://http://127.0.0.1:5000)
+
+Run migration:
+flask db init
+
+flask db migrate -m "Initial migration."
+
+flask db upgrade
