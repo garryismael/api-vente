@@ -9,6 +9,7 @@ from src.utils.auth import admin_required
 from src.utils.form import valid_form
 from src.utils.media import upload_file
 from werkzeug.utils import secure_filename
+from src.models.product_audit import get_products_audits
 
 product_folder = app.config.get('UPLOAD_PRODUCTS_FOLDER')
 
@@ -17,6 +18,11 @@ def all_products():
     search = request.args.get('search', None)
     products = Product.query.order_by(Product.name).all() if (search is None or search == '') else Product.query.order_by(Product.name).filter(Product.name.ilike(f'{search}%'))
     return products_serializer.jsonify(products)
+
+@app.get('/products/audits')
+def all_product_audits():
+    return get_products_audits()
+
 
 @app.get("/products/<int:id>")
 @validate()
