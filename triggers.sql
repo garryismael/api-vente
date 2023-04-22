@@ -30,3 +30,34 @@ END;
 $prod_stamp$ LANGUAGE plpgsql;
 CREATE TRIGGER price_changes BEFORE
 UPDATE ON products FOR EACH ROW EXECUTE PROCEDURE log_price_changes();
+
+-- Delete Product Trigger
+
+CREATE TABLE product_delete(
+    id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    price FLOAT NOT NULL,
+    description TEXT NOT NULL,
+    deleted_on TIMESTAMP(6) NOT NULL
+);
+CREATE OR REPLACE FUNCTION log_price_delete() RETURNS trigger AS $prod_stamp_del$ BEGIN 
+INSERT INTO product_delete(
+        product_id,
+        name,
+        price,
+        description,
+        deleted_on
+    )
+VALUES(
+        OLD.id,
+        OLD.name,
+        OLD.price,
+        OLD.description,
+        NOW()
+    );
+RETURN NEW;
+END;
+$prod_stamp_del$ LANGUAGE plpgsql;
+CREATE TRIGGER deleted_product BEFORE
+DELETE ON products FOR EACH ROW EXECUTE PROCEDURE log_price_delete();

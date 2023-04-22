@@ -9,7 +9,7 @@ from src.utils.auth import admin_required
 from src.utils.form import valid_form
 from src.utils.media import upload_file
 from werkzeug.utils import secure_filename
-from src.models.product_audit import get_products_audits
+from src.models.product_audit import get_products_audits, get_products_deleted
 
 product_folder = app.config.get('UPLOAD_PRODUCTS_FOLDER')
 
@@ -23,6 +23,9 @@ def all_products():
 def all_product_audits():
     return get_products_audits()
 
+@app.get('/products/deleted')
+def all_product_deleted():
+    return get_products_deleted()
 
 @app.get("/products/<int:id>")
 @validate()
