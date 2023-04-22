@@ -6,12 +6,16 @@ from src.models.purchase import Purchase
 from src.serializers.purchase import purchase_schemas, purchase_schema
 from src.utils.auth import admin_required
 from sqlalchemy import or_
-
+from src.models.purchases_deleted import get_purchases_deleted
 
 @app.get("/admin/purchases")
 def all_purchases_admin():
     purchases = Purchase.query.options(joinedload(Purchase.product)).filter(Purchase.client_id != None, Purchase.product_id != None)
     return purchase_schemas.jsonify(purchases)
+
+@app.get("/admin/purchases/get/deleted")
+def all_purchases_deleted():
+    return get_purchases_deleted()
 
 @app.get("/admin/purchases/<id>")
 @validate()
