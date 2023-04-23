@@ -39,7 +39,7 @@ CREATE TABLE product_delete(
     description TEXT NOT NULL,
     deleted_on TIMESTAMP(6) NOT NULL
 );
-CREATE OR REPLACE FUNCTION log_prod_delete() RETURNS trigger AS $prod_stamp_del$ BEGIN
+CREATE OR REPLACE FUNCTION log_product_delete() RETURNS trigger AS $product_stamp_del$ BEGIN
 INSERT INTO product_delete(
         product_id,
         name,
@@ -56,8 +56,8 @@ VALUES(
     );
 RETURN OLD;
 END;
-$prod_stamp_del$ LANGUAGE plpgsql;
-CREATE TRIGGER deleted_product BEFORE DELETE ON products FOR EACH ROW EXECUTE PROCEDURE log_prod_delete();
+$product_stamp_del$ LANGUAGE plpgsql;
+CREATE TRIGGER deleted_product BEFORE DELETE ON products FOR EACH ROW EXECUTE PROCEDURE log_product_delete();
 -- Delete Purchases Trigger
 CREATE TABLE purchases_delete(
     id SERIAL PRIMARY KEY,
@@ -65,7 +65,9 @@ CREATE TABLE purchases_delete(
     quantity INT NOT NULL,
     date_purchases VARCHAR(20) NOT NULL,
     client_id INT NOT NULL,
-    product_id INT NOT NULL,
+    client_name VARCHAR(50) NOT NULL,
+    product_id INT,
+    product_name VARCHAR(50),
     deleted_on TIMESTAMP(6) NOT NULL
 );
 CREATE OR REPLACE FUNCTION log_purchases_delete() RETURNS trigger AS $purchases_stamp_delete$ BEGIN
@@ -74,18 +76,26 @@ INSERT INTO purchases_delete(
         quantity,
         date_purchases,
         client_id,
+        client_name,
         product_id,
+        product_name,
         deleted_on
     )
-VALUES(
-        OLD.id,
-        OLD.quantity,
-        OLD.date_purchase,
-        OLD.client_id,
-        OLD.product_id,
-        NOW()
-    );
+SELECT pu.id as purchase_id,
+    pu.quantity as quantity,
+    pu.date_purchase as date_purchases,
+    c.id as client_id,
+    c.name as client_name,
+    pr.id as product_id,
+    pr.name as product_name,
+    NOW() as deleted_on
+FROM purchases pu,
+    users c,
+    products pr
+WHERE pu.client_id = c.id
+    AND pu.product_id = pr.id
+    AND pu.id = OLD.ID;
 RETURN OLD;
 END;
 $purchases_stamp_delete$ LANGUAGE plpgsql;
-CREATE TRIGGER remove_purchases BEFORE DELETE ON products FOR EACH ROW EXECUTE PROCEDURE log_purchases_delete();
+CREATE TRIGGER remove_purchases BEFORE DELETE ON purchases FOR EACH ROW EXECUTE PROCEDURE log_purchases_delete();

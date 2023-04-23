@@ -4,6 +4,7 @@ from sqlalchemy import Column, Date, ForeignKey, Integer
 from src.config.database import db
 from src.models.user import User
 from src.schemas.purchase import PurchaseBase
+from sqlalchemy import text
 
 
 
@@ -33,7 +34,8 @@ class Purchase(db.Model):
         return self
     
     def delete(self):
-        db.session.delete(self)
+        SQL = f'DELETE FROM purchases WHERE id={self.id}'
+        db.session.execute(text(SQL))
         db.session.commit()
     
     def init(self, product_id, quantity):
